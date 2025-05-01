@@ -1,143 +1,180 @@
-import React, { useState } from "react";
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Product from "./model/product";
 
-export default function HomeScreen() {
-  // Sample product data with updated image URLs
-  const [products, setProducts] = useState<Product[]>([
-    new Product("Black T-Shirt", 100.99, 1, "https://i.pinimg.com/564x/7a/0b/8e/7a0b8e716ff86321c989fa5c3802dec5.jpg"),
-    new Product("Red T-Shirt", 150.50, 1, "https://media.istockphoto.com/id/1354031012/photo/red-t-shirt-mockup-men-as-design-template-tee-shirt-blank-isolated-on-white-front-view.jpg?s=612x612&w=0&k=20&c=_5QLLkUa0-ZzSK1rp6Ie-ZRBPOEku4as4ZMrZg-y2GI="),
-    new Product("Orange T-Shirt", 120.00, 1, "https://i.pinimg.com/736x/bd/ef/cb/bdefcbc72735f64db17f3250b1e64245.jpg"),
-    new Product("Blue T-Shirt", 180.50, 1, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShxqfanJ0ztwBQz_j58ZxsMi0lvG3bNK7XMQ&s"),
-  ]);
+interface State {
+  products: Product[];
+}
 
-  const handleAddToCart = (product: Product) => {
-    alert(`${product.name} added to cart!`);
+export default class HomeScreen extends React.Component<{}, State> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {
+      products: [
+        new Product(
+          "product 1",
+          100.99,
+          "https://i.pinimg.com/564x/7a/0b/8e/7a0b8e716ff86321c989fa5c3802dec5.jpg"
+        ),
+        new Product(
+          "product 2",
+          150.5,
+          "https://media.istockphoto.com/id/1354031012/photo/red-t-shirt-mockup-men-as-design-template-tee-shirt-blank-isolated-on-white-front-view.jpg?s=612x612&w=0&k=20&c=_5QLLkUa0-ZzSK1rp6Ie-ZRBPOEku4as4ZMrZg-y2GI="
+        ),
+        new Product(
+          "product 3",
+          120.0,
+          "https://i.pinimg.com/736x/bd/ef/cb/bdefcbc72735f64db17f3250b1e64245.jpg"
+        ),
+        new Product(
+          "product 4",
+          180.5,
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShxqfanJ0ztwBQz_j58ZxsMi0lvG3bNK7XMQ&s"
+        ),
+      ],
+    };
+  }
+
+  handleAddToCart = (product: Product) => {
+    const updatedProducts = this.state.products.map((p) =>
+      p === product ? { ...p, quantity: p.quantity + 1 } : p
+    );
+    this.setState({ products: updatedProducts });
+    Alert.alert("Added to cart", `${product.name} added to cart!`);
   };
 
-  const handleQuantityChange = (index: number, change: number) => {
-    const updatedProducts = [...products];
-    const newQuantity = updatedProducts[index].quantity + change;
-    if (newQuantity >= 1) {
-      updatedProducts[index].quantity = newQuantity;
-      setProducts(updatedProducts);
-    }
+  incrementQuantity = (product: Product) => {
+    const updatedProducts = this.state.products.map((p) =>
+      p === product ? { ...p, quantity: p.quantity + 1 } : p
+    );
+    this.setState({ products: updatedProducts });
   };
 
-  const renderProduct = ({ item, index }: { item: Product; index: number }) => (
-    <View style={styles.productCard}>
-      <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
-      <Text style={styles.productName}>{item.name}</Text>
-      <Text style={styles.productPrice}>₹ {item.price.toFixed(2)}</Text>
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={() => handleQuantityChange(index, -1)}
-        >
-          <Text style={styles.quantityButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{item.quantity}</Text>
-        <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={() => handleQuantityChange(index, 1)}
-        >
-          <Text style={styles.quantityButtonText}>+</Text>
-        </TouchableOpacity>
+  decrementQuantity = (product: Product) => {
+    const updatedProducts = this.state.products.map((p) =>
+      p === product
+        ? { ...p, quantity: p.quantity > 1 ? p.quantity - 1 : 0 }
+        : p
+    );
+    this.setState({ products: updatedProducts });
+  };
+
+  renderProduct = ({ item }: { item: Product }) => {
+    return (
+      <View style={styles.card}>
+        <Image source={{ uri: item.imageUrl }} style={styles.image} />
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.price}>₹ {item.price.toFixed(2)}</Text>
+
+        {item.quantity === 0 ? (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => this.handleAddToCart(item)}
+          >
+            <Text style={styles.buttonText}>Add to Cart</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity onPress={() => this.decrementQuantity(item)}>
+              <Text style={styles.quantityButton}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{item.quantity}</Text>
+            <TouchableOpacity onPress={() => this.incrementQuantity(item)}>
+              <Text style={styles.quantityButton}>+</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-      <TouchableOpacity
-        style={styles.addToCartButton}
-        onPress={() => handleAddToCart(item)}
-      >
-        <Text style={styles.addToCartText}>Add to Cart</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Product List</Text>
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.productList}
-      />
-    </View>
-  );
+  render() {
+    return (
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={this.state.products}
+          renderItem={this.renderProduct}
+          keyExtractor={(_, index) => index.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+        />
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
-    padding: 10,
+    backgroundColor: "#fef4ff",
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 10,
-    color: "#333",
+  grid: {
+    padding: 8,
   },
-  productList: {
-    justifyContent: "space-between",
-  },
-  productCard: {
+  card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
-    margin: 10,
+    margin: 8,
     flex: 1,
     alignItems: "center",
     elevation: 3,
   },
-  productImage: {
+  image: {
     width: 100,
     height: 100,
-    borderRadius: 10,
+    borderRadius: 8,
     marginBottom: 10,
   },
-  productName: {
+  name: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
-    marginBottom: 5,
+    textAlign: "center",
   },
-  productPrice: {
+  price: {
     fontSize: 14,
-    color: "#666",
-    marginBottom: 10,
+    color: "#555",
+    marginVertical: 6,
+  },
+  button: {
+    backgroundColor: "#b2f5ea",
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginTop: 5,
+  },
+  buttonText: {
+    color: "#333",
+    fontWeight: "bold",
   },
   quantityContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    backgroundColor: "#f2f2f2",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginTop: 5,
   },
   quantityButton: {
-    backgroundColor: "#ddd",
-    padding: 5,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  quantityButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    paddingHorizontal: 10,
+    color: "#444",
   },
   quantityText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  addToCartButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  addToCartText: {
-    color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
+    marginHorizontal: 6,
   },
 });

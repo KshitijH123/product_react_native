@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons"; // Import MaterialCommunityIcons
+import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { TouchableOpacity } from "react-native";
 
@@ -19,20 +19,19 @@ export default function RootLayout() {
     >
       <Stack.Screen name="index" options={{ title: "Sign Up" }} />
       <Stack.Screen
-        name="home"
+        name="Cart"
         options={{
-          title: "Product List",
+          title: "item List",
           headerRight: () => (
             <TouchableOpacity
               onPress={() => router.push("/cart")}
               style={{ marginRight: 15 }}
             >
-              <MaterialCommunityIcons name="cart" size={10} color="black" />
+              <Ionicons name="cart-outline" size={24} color="#fff" />
             </TouchableOpacity>
           ),
         }}
       />
-      <Stack.Screen name="cart" options={{ title: "Cart" }} />
     </Stack>
   );
 }

@@ -4,10 +4,10 @@ export default class Product {
   quantity: number;
   imageUrl: string;
 
-  constructor(name: string, price: number, quantity: number, imageUrl: string) {
+  constructor(name: string, price: number, imageUrl: string, quantity: number = 0) {
     this.name = name;
     this.price = price;
-    this.quantity = quantity;
     this.imageUrl = imageUrl;
+    this.quantity = quantity;
   }
 }
